@@ -126,17 +126,15 @@ WIN_COMBINATIONS = [
     end
   end
 
-  # def play
-  #   while self.full? == false && self.won? == false
-  #   self.turn
-  #   end
-  #   if self.draw?
-  #     puts "I'm sorry but the match ended in a draw!"
-  #   else
-  #     self.winner
-  #   end
-  # end
+   def play
+     while self.full? == false && self.won? == false
+     self.turn until self.over?
+     end
+     if self.draw?
+       puts "I'm sorry but the match ended in a draw!"
+     else
+       self.winner
+     end
+   end
 
 end
-#  game = TicTacToe.new
-#  binding.pry
