@@ -27,114 +27,81 @@ WIN_COMBINATIONS = [
     puts " #{@board[6..8].join(" | ")} "
   end
 
-  def input_to_index(input)
-    index = input.to_i
-    index -= 1
-    index
+  def input_to_index(string)
+    string.to_i - 1
   end
 
-  def move(input, token = "X")
-    if self.position_taken?(input) == false
-        @board[input] = token
-        @board
-    end
+  def move(index, token = "X")
+    @board[index] = token
   end
+  
 
   def position_taken?(index)
-    if @board[index] == "X" || @board[index] == "O"
-        true
-    else
-        false
-    end
+    @board[index] != " "
   end
 
   def valid_move?(index)
-    if index >= 0 && index < 10 && self.position_taken?(index) == false
-        true
-    else
-        false
-    end
-  end
-
-  def turn
-    breaker = 0
-    while breaker < 1
-      puts "please select a position on the board using the numbers 1 - 9"
-      input = gets.strip
-      index = self.input_to_index(input)
-      if self.valid_move?(index) == true
-        breaker += 1
-      else
-        puts "I'm sorry, that is not a valid move, please try again."
-      end
-    end
-    token = self.current_player
-      self.move(index, token)
-      self.display_board
+    !position_taken?(index) && index >=0 && index <= 8
   end
 
   def turn_count
-    count = 0
-    player1 = @board.count("X")
-    player2 = @board.count("O")
-    count += player1 + player2
-    count
+    @board.select{|position| position != " "}.size
   end
 
   def current_player
-    if self.turn_count % 2 == 0
-        "X"
+    turn_count.even? ? "X" : "O"
+  end
+
+  def turn
+    puts "Enter the space you'd like to play on:"
+    input = gets.strip
+    index = input_to_index(input)
+    if valid_move?(index)
+      move(index, current_player)
     else
-        "O"
+      puts "Invalid move, try again"
+      turn
     end
+    display_board
   end
 
   def won?
-    win = false
-    WIN_COMBINATIONS.each do |i|
-        if @board[i[0]] == @board[i[1]] && @board[i[1]] == @board [i[2]] && @board[i[0]] != " "
-            win = i
-        end
+    WIN_COMBINATIONS.find do |combination|
+      position_taken?(combination[0]) && @board[combination[0]] == @board[combination[1]] && @board[combination[0]] == @board[combination[2]]
     end
-        win
   end
 
   def full?
-    @board.all? {|element| element == "X" || element == "O"}
+    turn_count > 8
   end
 
   def draw?
-    if self.won? == false && self.full? == true
-        true
-    else
-        false
-    end
+    full? && !won?
   end
 
   def over?
-   if self.draw?
-    true
-   else
-    self.won?
-   end
+    draw? || won?
   end
 
   def winner
-    if self.won?
-        winner = self.won?
-        "#{@board[winner[0]]}"
+    if won?
+      @board[won?[0]]
     end
   end
 
-   def play
-     while self.full? == false && self.won? == false
-     self.turn until self.over?
-     end
-     if self.draw?
-       puts "I'm sorry but the match ended in a draw!"
-     else
-       self.winner
-     end
-   end
+  def play
+    until over?
+      turn
+    end
+    won? ? congratulate : draw
+  end
+
+  def congratulate
+    puts "Congratulations #{winner}!"
+  end
+
+  def draw
+    puts "Cat's Game!"
+  end
 
 end
